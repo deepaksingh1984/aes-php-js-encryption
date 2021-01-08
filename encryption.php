@@ -1,5 +1,5 @@
 <?php
-class BrightchatsAES {
+class PHPAESKey {
 
     protected static $key_size = 256;
     protected static $valid_key_sizes = array(128, 192, 256);
@@ -88,7 +88,7 @@ class BrightchatsAES {
         $newsize = (int) $newsize;
 
         if (!$valid_integer || !in_array($newsize, self::$valid_key_sizes)) {
-            trigger_error('BrightchatsAES: Invalid key size value was to be set. It should be an integer value (number of bits) amongst: '.implode(', ', self::$valid_key_sizes).'.', E_USER_WARNING);
+            trigger_error('PHPAESKey: Invalid key size value was to be set. It should be an integer value (number of bits) amongst: '.implode(', ', self::$valid_key_sizes).'.', E_USER_WARNING);
         } else {
             self::$key_size = $newsize;
         }
@@ -280,7 +280,7 @@ class BrightchatsAES {
             return false;
         }
 
-        trigger_error('BrightchatsAES: System requirements failure, please, check them.', E_USER_WARNING);
+        trigger_error('PHPAESKey: System requirements failure, please, check them.', E_USER_WARNING);
 
         return false;
     }
@@ -309,7 +309,7 @@ class BrightchatsAES {
             return false;
         }
 
-        trigger_error('BrightchatsAES: System requirements failure, please, check them.', E_USER_WARNING);
+        trigger_error('PHPAESKey: System requirements failure, please, check them.', E_USER_WARNING);
 
         return false;
     }

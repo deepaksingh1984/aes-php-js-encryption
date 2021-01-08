@@ -1,4 +1,4 @@
-(function (root, factory) {
+(function(root, factory) {
     if (typeof exports === 'object') {
         // Node.
         module.exports = factory();
@@ -7,9 +7,9 @@
         define(factory);
     } else {
         // Browser globals (root is window)
-        root.BrightchatsAES = factory();
+        root.JSAESKey = factory();
     }
-}(this, function () {
+}(this, function() {
     'use strict';
 
     var Nr = 14,
@@ -17,43 +17,38 @@
         Nk = 8,
         Decrypt = false,
 
-        enc_utf8 = function(s)
-        {
+        enc_utf8 = function(s) {
             try {
                 return unescape(encodeURIComponent(s));
-            }
-            catch(e) {
+            } catch (e) {
                 throw 'Error on UTF-8 encode';
             }
         },
 
-        dec_utf8 = function(s)
-        {
+        dec_utf8 = function(s) {
             try {
                 return decodeURIComponent(escape(s));
-            }
-            catch(e) {
+            } catch (e) {
                 throw ('Bad Key');
             }
         },
 
-        padBlock = function(byteArr)
-        {
-            var array = [], cpad, i;
+        padBlock = function(byteArr) {
+            var array = [],
+                cpad, i;
             if (byteArr.length < 16) {
                 cpad = 16 - byteArr.length;
                 array = [cpad, cpad, cpad, cpad, cpad, cpad, cpad, cpad, cpad, cpad, cpad, cpad, cpad, cpad, cpad, cpad];
             }
-            for (i = 0; i < byteArr.length; i++)
-            {
+            for (i = 0; i < byteArr.length; i++) {
                 array[i] = byteArr[i];
             }
             return array;
         },
 
-        block2s = function(block, lastBlock)
-        {
-            var string = '', padding, i;
+        block2s = function(block, lastBlock) {
+            var string = '',
+                padding, i;
             if (lastBlock) {
                 padding = block[15];
                 if (padding > 16) {
@@ -73,17 +68,16 @@
             return string;
         },
 
-        a2h = function(numArr)
-        {
-            var string = '', i;
+        a2h = function(numArr) {
+            var string = '',
+                i;
             for (i = 0; i < numArr.length; i++) {
-                string += (numArr[i] < 16 ? '0': '') + numArr[i].toString(16);
+                string += (numArr[i] < 16 ? '0' : '') + numArr[i].toString(16);
             }
             return string;
         },
 
-        h2a = function(s)
-        {
+        h2a = function(s) {
             var ret = [];
             s.replace(/(..)/g,
                 function(s) {
@@ -93,24 +87,22 @@
         },
 
         s2a = function(string, binary) {
-            var array = [], i;
+            var array = [],
+                i;
 
-            if (! binary) {
+            if (!binary) {
                 string = enc_utf8(string);
             }
 
-            for (i = 0; i < string.length; i++)
-            {
+            for (i = 0; i < string.length; i++) {
                 array[i] = string.charCodeAt(i);
             }
 
             return array;
         },
 
-        size = function(newsize)
-        {
-            switch (newsize)
-            {
+        size = function(newsize) {
+            switch (newsize) {
                 case 128:
                     Nr = 10;
                     Nk = 4;
@@ -129,7 +121,8 @@
         },
 
         randArr = function(num) {
-            var result = [], i;
+            var result = [],
+                i;
             for (i = 0; i < num; i++) {
                 result = result.concat(Math.floor(Math.random() * 256));
             }
@@ -143,7 +136,7 @@
             // 2 rounds for 128
             //        1 round for the key, 1 round for the IV
             // 3 rounds for 192 since it's not evenly divided by 128 bits
-            var rounds = Nr >= 12 ? 3: 2,
+            var rounds = Nr >= 12 ? 3 : 2,
                 key = [],
                 iv = [],
                 md5_hash = [],
@@ -243,7 +236,7 @@
         },
 
         subBytes = function(state) {
-            var S = Decrypt ? SBoxInv: SBox,
+            var S = Decrypt ? SBoxInv : SBox,
                 temp = [],
                 i;
             for (i = 0; i < 16; i++) {
@@ -272,12 +265,12 @@
                     t[2 + c * 4] = state[c * 4] ^ state[1 + c * 4] ^ G2X[state[2 + c * 4]] ^ G3X[state[3 + c * 4]];
                     t[3 + c * 4] = G3X[state[c * 4]] ^ state[1 + c * 4] ^ state[2 + c * 4] ^ G2X[state[3 + c * 4]];
                 }
-            }else {
+            } else {
                 for (c = 0; c < 4; c++) {
-                    t[c*4] = GEX[state[c*4]] ^ GBX[state[1+c*4]] ^ GDX[state[2+c*4]] ^ G9X[state[3+c*4]];
-                    t[1+c*4] = G9X[state[c*4]] ^ GEX[state[1+c*4]] ^ GBX[state[2+c*4]] ^ GDX[state[3+c*4]];
-                    t[2+c*4] = GDX[state[c*4]] ^ G9X[state[1+c*4]] ^ GEX[state[2+c*4]] ^ GBX[state[3+c*4]];
-                    t[3+c*4] = GBX[state[c*4]] ^ GDX[state[1+c*4]] ^ G9X[state[2+c*4]] ^ GEX[state[3+c*4]];
+                    t[c * 4] = GEX[state[c * 4]] ^ GBX[state[1 + c * 4]] ^ GDX[state[2 + c * 4]] ^ G9X[state[3 + c * 4]];
+                    t[1 + c * 4] = G9X[state[c * 4]] ^ GEX[state[1 + c * 4]] ^ GBX[state[2 + c * 4]] ^ GDX[state[3 + c * 4]];
+                    t[2 + c * 4] = GDX[state[c * 4]] ^ G9X[state[1 + c * 4]] ^ GEX[state[2 + c * 4]] ^ GBX[state[3 + c * 4]];
+                    t[3 + c * 4] = GBX[state[c * 4]] ^ GDX[state[1 + c * 4]] ^ G9X[state[2 + c * 4]] ^ GEX[state[3 + c * 4]];
                 }
             }
 
@@ -360,17 +353,17 @@
             return w;
         },
 
-// jlcooke: 2012-07-12: added strhex + invertArr to compress G2X/G3X/G9X/GBX/GEX/SBox/SBoxInv/Rcon saving over 7KB, and added encString, decString
-        strhex = function(str,size) {
+        // jlcooke: 2012-07-12: added strhex + invertArr to compress G2X/G3X/G9X/GBX/GEX/SBox/SBoxInv/Rcon saving over 7KB, and added encString, decString
+        strhex = function(str, size) {
             var i, ret = [];
-            for (i=0; i<str.length; i+=size){
-                ret[i/size] = parseInt(str.substr(i,size), 16);
+            for (i = 0; i < str.length; i += size) {
+                ret[i / size] = parseInt(str.substr(i, size), 16);
             }
             return ret;
         },
         invertArr = function(arr) {
             var i, ret = [];
-            for (i=0; i<arr.length; i++){
+            for (i = 0; i < arr.length; i++) {
                 ret[arr[i]] = i;
             }
             return ret;
@@ -379,10 +372,10 @@
             var i, ret;
 
             ret = 0;
-            for (i=0; i<8; i++) {
-                ret = ((b&1)===1) ? ret^a : ret;
+            for (i = 0; i < 8; i++) {
+                ret = ((b & 1) === 1) ? ret ^ a : ret;
                 /* xmult */
-                a = (a>0x7f) ? 0x11b^(a<<1) : (a<<1);
+                a = (a > 0x7f) ? 0x11b ^ (a << 1) : (a << 1);
                 b >>>= 1;
             }
 
@@ -390,7 +383,7 @@
         },
         Gx = function(x) {
             var i, r = [];
-            for (i=0; i<256; i++){
+            for (i = 0; i < 256; i++) {
                 r[i] = Gxx(x, i);
             }
             return r;
@@ -416,7 +409,8 @@
             181, 102, 72, 3, 246, 14, 97, 53, 87, 185, 134, 193, 29, 158, 225,
             248, 152, 17, 105, 217, 142, 148, 155, 30, 135, 233, 206, 85, 40, 223,
             140, 161, 137, 13, 191, 230, 66, 104, 65, 153, 45, 15, 176, 84, 187,
-            22], //*/ SBox = strhex('637c777bf26b6fc53001672bfed7ab76ca82c97dfa5947f0add4a2af9ca472c0b7fd9326363ff7cc34a5e5f171d8311504c723c31896059a071280e2eb27b27509832c1a1b6e5aa0523bd6b329e32f8453d100ed20fcb15b6acbbe394a4c58cfd0efaafb434d338545f9027f503c9fa851a3408f929d38f5bcb6da2110fff3d2cd0c13ec5f974417c4a77e3d645d197360814fdc222a908846eeb814de5e0bdbe0323a0a4906245cc2d3ac629195e479e7c8376d8dd54ea96c56f4ea657aae08ba78252e1ca6b4c6e8dd741f4bbd8b8a703eb5664803f60e613557b986c11d9ee1f8981169d98e949b1e87e9ce5528df8ca1890dbfe6426841992d0fb054bb16',2),
+            22], //*/
+        SBox = strhex('637c777bf26b6fc53001672bfed7ab76ca82c97dfa5947f0add4a2af9ca472c0b7fd9326363ff7cc34a5e5f171d8311504c723c31896059a071280e2eb27b27509832c1a1b6e5aa0523bd6b329e32f8453d100ed20fcb15b6acbbe394a4c58cfd0efaafb434d338545f9027f503c9fa851a3408f929d38f5bcb6da2110fff3d2cd0c13ec5f974417c4a77e3d645d197360814fdc222a908846eeb814de5e0bdbe0323a0a4906245cc2d3ac629195e479e7c8376d8dd54ea96c56f4ea657aae08ba78252e1ca6b4c6e8dd741f4bbd8b8a703eb5664803f60e613557b986c11d9ee1f8981169d98e949b1e87e9ce5528df8ca1890dbfe6426841992d0fb054bb16', 2),
 
         // Precomputed lookup table for the inverse SBox
         /*    SBoxInv = [
@@ -437,13 +431,15 @@
             127, 169, 25, 181, 74, 13, 45, 229, 122, 159, 147, 201, 156, 239, 160,
             224, 59, 77, 174, 42, 245, 176, 200, 235, 187, 60, 131, 83, 153, 97,
             23, 43, 4, 126, 186, 119, 214, 38, 225, 105, 20, 99, 85, 33, 12,
-            125], //*/ SBoxInv = invertArr(SBox),
+            125], //*/
+        SBoxInv = invertArr(SBox),
 
         // Rijndael Rcon
         /*
             Rcon = [1, 2, 4, 8, 16, 32, 64, 128, 27, 54, 108, 216, 171, 77, 154, 47, 94,
             188, 99, 198, 151, 53, 106, 212, 179, 125, 250, 239, 197, 145],
-        //*/ Rcon = strhex('01020408102040801b366cd8ab4d9a2f5ebc63c697356ad4b37dfaefc591',2),
+        //*/
+        Rcon = strhex('01020408102040801b366cd8ab4d9a2f5ebc63c697356ad4b37dfaefc591', 2),
 
         /*
             G2X = [
@@ -469,7 +465,8 @@
             0xd3, 0xd1, 0xd7, 0xd5, 0xcb, 0xc9, 0xcf, 0xcd, 0xc3, 0xc1, 0xc7, 0xc5,
             0xfb, 0xf9, 0xff, 0xfd, 0xf3, 0xf1, 0xf7, 0xf5, 0xeb, 0xe9, 0xef, 0xed,
             0xe3, 0xe1, 0xe7, 0xe5
-            ], //*/ G2X = Gx(2),
+            ], //*/
+        G2X = Gx(2),
 
         /*    G3X = [
             0x00, 0x03, 0x06, 0x05, 0x0c, 0x0f, 0x0a, 0x09, 0x18, 0x1b, 0x1e, 0x1d,
@@ -494,7 +491,8 @@
             0x37, 0x34, 0x31, 0x32, 0x23, 0x20, 0x25, 0x26, 0x2f, 0x2c, 0x29, 0x2a,
             0x0b, 0x08, 0x0d, 0x0e, 0x07, 0x04, 0x01, 0x02, 0x13, 0x10, 0x15, 0x16,
             0x1f, 0x1c, 0x19, 0x1a
-            ], //*/ G3X = Gx(3),
+            ], //*/
+        G3X = Gx(3),
 
         /*
             G9X = [
@@ -520,7 +518,8 @@
             0x85, 0x8c, 0x97, 0x9e, 0xe9, 0xe0, 0xfb, 0xf2, 0xcd, 0xc4, 0xdf, 0xd6,
             0x31, 0x38, 0x23, 0x2a, 0x15, 0x1c, 0x07, 0x0e, 0x79, 0x70, 0x6b, 0x62,
             0x5d, 0x54, 0x4f, 0x46
-            ], //*/ G9X = Gx(9),
+            ], //*/
+        G9X = Gx(9),
 
         /*    GBX = [
             0x00, 0x0b, 0x16, 0x1d, 0x2c, 0x27, 0x3a, 0x31, 0x58, 0x53, 0x4e, 0x45,
@@ -545,7 +544,8 @@
             0x56, 0x5d, 0x40, 0x4b, 0x22, 0x29, 0x34, 0x3f, 0x0e, 0x05, 0x18, 0x13,
             0xca, 0xc1, 0xdc, 0xd7, 0xe6, 0xed, 0xf0, 0xfb, 0x92, 0x99, 0x84, 0x8f,
             0xbe, 0xb5, 0xa8, 0xa3
-            ], //*/ GBX = Gx(0xb),
+            ], //*/
+        GBX = Gx(0xb),
 
         /*
             GDX = [
@@ -571,7 +571,8 @@
             0x38, 0x35, 0x22, 0x2f, 0x64, 0x69, 0x7e, 0x73, 0x50, 0x5d, 0x4a, 0x47,
             0xdc, 0xd1, 0xc6, 0xcb, 0xe8, 0xe5, 0xf2, 0xff, 0xb4, 0xb9, 0xae, 0xa3,
             0x80, 0x8d, 0x9a, 0x97
-            ], //*/ GDX = Gx(0xd),
+            ], //*/
+        GDX = Gx(0xd),
 
         /*
             GEX = [
@@ -597,7 +598,8 @@
             0x0f, 0x01, 0x13, 0x1d, 0x47, 0x49, 0x5b, 0x55, 0x7f, 0x71, 0x63, 0x6d,
             0xd7, 0xd9, 0xcb, 0xc5, 0xef, 0xe1, 0xf3, 0xfd, 0xa7, 0xa9, 0xbb, 0xb5,
             0x9f, 0x91, 0x83, 0x8d
-            ], //*/ GEX = Gx(0xe),
+            ], //*/
+        GEX = Gx(0xe),
 
         enc = function(string, pass, binary) {
             // string, password in plaintext
@@ -606,7 +608,9 @@
                 key = pbe.key,
                 iv = pbe.iv,
                 cipherBlocks,
-                saltBlock = [[83, 97, 108, 116, 101, 100, 95, 95].concat(salt)];
+                saltBlock = [
+                    [83, 97, 108, 116, 101, 100, 95, 95].concat(salt)
+                ];
             string = s2a(string, binary);
             cipherBlocks = rawEncrypt(string, key, iv);
             // Spells out 'Salted__'
@@ -661,12 +665,15 @@
             function f(x, y, z) {
                 return (x & y) | ((~x) & z);
             }
+
             function g(x, y, z) {
                 return (x & z) | (y & (~z));
             }
+
             function h(x, y, z) {
                 return (x ^ y ^ z);
             }
+
             function funcI(x, y, z) {
                 return (y ^ (x | (~z)));
             }
@@ -758,7 +765,7 @@
                 b,
                 c,
                 d,
-                rnd = strhex('67452301efcdab8998badcfe10325476d76aa478e8c7b756242070dbc1bdceeef57c0faf4787c62aa8304613fd469501698098d88b44f7afffff5bb1895cd7be6b901122fd987193a679438e49b40821f61e2562c040b340265e5a51e9b6c7aad62f105d02441453d8a1e681e7d3fbc821e1cde6c33707d6f4d50d87455a14eda9e3e905fcefa3f8676f02d98d2a4c8afffa39428771f6816d9d6122fde5380ca4beea444bdecfa9f6bb4b60bebfbc70289b7ec6eaa127fad4ef308504881d05d9d4d039e6db99e51fa27cf8c4ac5665f4292244432aff97ab9423a7fc93a039655b59c38f0ccc92ffeff47d85845dd16fa87e4ffe2ce6e0a30143144e0811a1f7537e82bd3af2352ad7d2bbeb86d391',8);
+                rnd = strhex('67452301efcdab8998badcfe10325476d76aa478e8c7b756242070dbc1bdceeef57c0faf4787c62aa8304613fd469501698098d88b44f7afffff5bb1895cd7be6b901122fd987193a679438e49b40821f61e2562c040b340265e5a51e9b6c7aad62f105d02441453d8a1e681e7d3fbc821e1cde6c33707d6f4d50d87455a14eda9e3e905fcefa3f8676f02d98d2a4c8afffa39428771f6816d9d6122fde5380ca4beea444bdecfa9f6bb4b60bebfbc70289b7ec6eaa127fad4ef308504881d05d9d4d039e6db99e51fa27cf8c4ac5665f4292244432aff97ab9423a7fc93a039655b59c38f0ccc92ffeff47d85845dd16fa87e4ffe2ce6e0a30143144e0811a1f7537e82bd3af2352ad7d2bbeb86d391', 8);
 
             x = convertToWordArray(numArr);
 
@@ -850,7 +857,7 @@
             plaintext = s2a(plaintext);
 
             key = s2a(key);
-            for (i=key.length; i<32; i++){
+            for (i = key.length; i < 32; i++) {
                 key[i] = 0;
             }
 
@@ -859,14 +866,14 @@
                 // iv = genIV();
             } else {
                 iv = s2a(iv);
-                for (i=iv.length; i<16; i++){
+                for (i = iv.length; i < 16; i++) {
                     iv[i] = 0;
                 }
             }
 
             var ct = rawEncrypt(plaintext, key, iv);
             var ret = [iv];
-            for (i=0; i<ct.length; i++){
+            for (i = 0; i < ct.length; i++) {
                 ret[ret.length] = ct[i];
             }
             return Base64.encode(ret);
@@ -879,7 +886,7 @@
             var i;
 
             key = s2a(key);
-            for (i=key.length; i<32; i++){
+            for (i = key.length; i < 32; i++) {
                 key[i] = 0;
             }
 
@@ -887,7 +894,7 @@
             return pt;
         },
 
-        Base64 = (function(){
+        Base64 = (function() {
             // Takes a Nx16x1 byte array and converts it to Base64
             var _chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/',
                 chars = _chars.split(''),
@@ -904,12 +911,12 @@
                     for (i = 0; i < flatArr.length; i = i + 3) {
                         b64 += chars[flatArr[i] >> 2];
                         b64 += chars[((flatArr[i] & 3) << 4) | (flatArr[i + 1] >> 4)];
-                        if ( flatArr[i + 1] !== undefined ) {
+                        if (flatArr[i + 1] !== undefined) {
                             b64 += chars[((flatArr[i + 1] & 15) << 2) | (flatArr[i + 2] >> 6)];
                         } else {
                             b64 += '=';
                         }
-                        if ( flatArr[i + 2] !== undefined ) {
+                        if (flatArr[i + 2] !== undefined) {
                             b64 += chars[flatArr[i + 2] & 63];
                         } else {
                             b64 += '=';
@@ -918,7 +925,7 @@
                     // OpenSSL is super particular about line breaks
                     broken_b64 = b64.slice(0, 64) + '\n';
                     for (i = 1; i < (Math.ceil(b64.length / 64)); i++) {
-                        broken_b64 += b64.slice(i * 64, i * 64 + 64) + (Math.ceil(b64.length / 64) === i + 1 ? '': '\n');
+                        broken_b64 += b64.slice(i * 64, i * 64 + 64) + (Math.ceil(b64.length / 64) === i + 1 ? '' : '\n');
                     }
                     return broken_b64;
                 },
@@ -945,7 +952,7 @@
                 };
 
             //internet explorer
-            if(typeof Array.indexOf === "function") {
+            if (typeof Array.indexOf === "function") {
                 _chars = chars;
             }
 
@@ -972,20 +979,20 @@
 
     return {
         "size": size,
-        "h2a":h2a,
-        "expandKey":expandKey,
-        "encryptBlock":encryptBlock,
-        "decryptBlock":decryptBlock,
-        "Decrypt":Decrypt,
-        "s2a":s2a,
-        "rawEncrypt":rawEncrypt,
-        "rawDecrypt":rawDecrypt,
-        "dec":dec,
-        "openSSLKey":openSSLKey,
-        "a2h":a2h,
-        "enc":enc,
-        "Hash":{"MD5":MD5},
-        "Base64":Base64
+        "h2a": h2a,
+        "expandKey": expandKey,
+        "encryptBlock": encryptBlock,
+        "decryptBlock": decryptBlock,
+        "Decrypt": Decrypt,
+        "s2a": s2a,
+        "rawEncrypt": rawEncrypt,
+        "rawDecrypt": rawDecrypt,
+        "dec": dec,
+        "openSSLKey": openSSLKey,
+        "a2h": a2h,
+        "enc": enc,
+        "Hash": { "MD5": MD5 },
+        "Base64": Base64
     };
 
 }));
